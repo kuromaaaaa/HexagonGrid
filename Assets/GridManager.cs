@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
-public class GridManager : MonoBehaviour
+public class GridManager : SingletonMonoBehaviour<GridManager>
 {
     [SerializeField] int _sizeX;
     [SerializeField] int _sizeY;
