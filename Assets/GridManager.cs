@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class GridManager : SingletonMonoBehaviour<GridManager>
@@ -11,13 +8,13 @@ public class GridManager : SingletonMonoBehaviour<GridManager>
     // Start is called before the first frame update
     void Start()
     {
-        for(float y = 0,z = 0;y < _sizeY ;y++,z += Mathf.Sin(60 * Mathf.Deg2Rad))
+        for (float y = 0, z = 0; y < _sizeY; y++, z += Mathf.Sin(60 * Mathf.Deg2Rad))
         {
-            for(int x = 0; x < _sizeX ;x++)
+            for (int x = 0; x < _sizeX; x++)
             {
                 GameObject g = Instantiate(_gridGameObject);
                 //À•W”z’u
-                if (y % 2 == 0) g.transform.position = new Vector3(x,0,z);
+                if (y % 2 == 0) g.transform.position = new Vector3(x, 0, z);
                 else g.transform.position = new Vector3(0.5f + x, 0, z);
 
                 g.name = $"grid({x}, {y})";
@@ -28,6 +25,6 @@ public class GridManager : SingletonMonoBehaviour<GridManager>
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }
