@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 static public class ObjectMove
@@ -67,12 +68,25 @@ static public class ObjectMove
 
     static public void AStarSearch(int startX,int startY ,int goalX,int GoalY)
     {
-        
 
     }
 }
 
 public class AstarGrid
 {
-
+    public AstarState State;
+    public (int, int) Pos;
+    public (int, int) BeforePos;
+    public int PreCost;
+    public float RealCost = 0;
+    public float Score = 0;
+    public enum AstarState
+    {
+        Way,
+        Block,
+        Open,
+        Close,
+        Start,
+        Goal
+    }
 }
