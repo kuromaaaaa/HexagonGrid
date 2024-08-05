@@ -6,6 +6,14 @@ public class Grid : MonoBehaviour
     public Vector3 Pos
     {
         get { return _pos; }
+        set { _pos = value; }
+    }
+
+    Vector2 _gridPos;
+    public Vector2 GridPos
+    {
+        get { return _gridPos; }
+        set { _gridPos = value; }
     }
 
     GridState _state;
@@ -16,35 +24,39 @@ public class Grid : MonoBehaviour
         {
             _state = value;
             //グリッドの色変える
-            _mr.material.color = _gridColor[(int)value];
+            GetComponent<MeshRenderer>().material.color = _gridColor[(int)value];
+            OnObject = (value == GridState.Player || value == GridState.Enemy || value == GridState.Obstacle)
+                ? true : false;
         }
     }
 
     bool onObject;
-    public bool OnObject 
+    public bool OnObject
     {
         get { return onObject; }
         set { onObject = value; }
     }
 
-    [SerializeField] int num = 0;
-
     [SerializeField] Color[] _gridColor;
 
-    MeshRenderer _mr;
-
-    bool OnStarted;
-    private void Start()
+    bool _onMove = false;
+    public bool OnMove
     {
-        _mr = GetComponent<MeshRenderer>();
-        _pos = transform.position;
-        OnStarted = true;
-    }
-
-    void OnValidate()
-    {
-        if(OnStarted)
-            State = (GridState)num;
+        get { return _onMove; }
+        set 
+        { 
+            _onMove = value;
+            if (value == true)
+            {
+                if (State == GridState.None)
+                    State = GridState.OnMove;
+            }
+            else
+            {
+                if (State == GridState.OnMove)
+                    State = GridState.None;
+            }
+        }
     }
 }
 
@@ -56,5 +68,4 @@ public enum GridState
     Enemy,
     Obstacle,
     Goal,
-    Select
 }

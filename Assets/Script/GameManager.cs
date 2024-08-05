@@ -1,6 +1,7 @@
 using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -25,22 +26,31 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         _cm = Camera.main.transform;
     }
 
-    void SelectGridChange(Grid value)
+    void SelectGridChange(Grid selectGrid)
     {
-        if(SelectGrid)
-            SelectGrid.State = GridState.None;
-        value.State = GridState.Select;
-
         Camera.main.gameObject.transform.
-            DOMove(new Vector3(value.Pos.x, _cm.position.y, value.Pos.z),0.5f)
+            DOMove(new Vector3(selectGrid.Pos.x, _cm.position.y, selectGrid.Pos.z),0.5f)
             .SetEase(Ease.Linear);
 
         switch(gameState)
         {
             case (GameState.None):
             {
-                if(value.OnObject)
+                if (selectGrid.OnObject)
+                {
                     gameState = GameState.SelectObject;
+                    if (selectGrid.State == GridState.Player)
+                        ObjectMove.MoveRange((int)selectGrid.GridPos.x,(int)selectGrid.GridPos.y,3);
+                }
+                break;
+            }
+            case (GameState.SelectObject):
+            {
+                if (selectGrid.State == GridState.None)
+                {
+                    gameState = GameState.None;
+                    ObjectMove.OnMoveClear();
+                }
                 break;
             }
         }

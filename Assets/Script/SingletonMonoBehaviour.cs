@@ -13,7 +13,6 @@ public class SingletonMonoBehaviour<T> : MonoBehaviour where T : SingletonMonoBe
     }
     protected void Awake()
     {
-        Debug.Log("Awake‚æ‚Î‚ê‚½");
         if (instance == null)
         {
             instance = (T)FindObjectOfType(typeof(T));
