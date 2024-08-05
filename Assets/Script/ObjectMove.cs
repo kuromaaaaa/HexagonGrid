@@ -68,7 +68,7 @@ static public class ObjectMove
 
     static public void AStarSearch(int startX,int startY ,int goalX,int GoalY)
     {
-
+        AstarGrid[,] astarGrids;
     }
 }
 
