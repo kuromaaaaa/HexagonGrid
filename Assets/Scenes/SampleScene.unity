@@ -153,9 +153,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f07dac69729abbf4099d3f28297733da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _sizeX: 5
-  _sizeY: 5
+  _sizeX: 20
+  _sizeY: 20
   _gridGameObject: {fileID: 4191077280349831234, guid: 5a0b20f2fc379bd459f0971cd46a0294, type: 3}
+  _gridText: {fileID: 8081903045823488425, guid: 932ea1a05957aa748970fea67c4d9434, type: 3}
 --- !u!4 &385635621
 Transform:
   m_ObjectHideFlags: 0
@@ -183,6 +184,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 019273c2ec3b478449e2afb802e311ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  objects:
+  - {fileID: 11400000, guid: 584f4c41ab2878840be9d84903e31858, type: 2}
 --- !u!114 &385635623
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -195,6 +198,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94e9979fa1bd8e646a3fc7049c8d2b29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mouseSensi: 0.3
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

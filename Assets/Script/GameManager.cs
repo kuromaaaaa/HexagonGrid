@@ -1,9 +1,6 @@
 using DG.Tweening;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class GameManager : SingletonMonoBehaviour<GameManager>
 {
@@ -14,22 +11,25 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         get { return _selectGrid; }
         set 
         { 
-            SelectGridChange(value);
+            SelectGridChange( _selectGrid,value);
             _selectGrid = value;
         }
     }
 
     Transform _cm;
 
+    [SerializeField] List<ObjectSO> objects;
+    public List<ObjectSO> Objects { get { return objects; } }
+
     private void Start()
     {
         _cm = Camera.main.transform;
     }
 
-    void SelectGridChange(Grid selectGrid)
+    void SelectGridChange(Grid beforeSelect , Grid selectGrid)
     {
         Camera.main.gameObject.transform.
-            DOMove(new Vector3(selectGrid.Pos.x, _cm.position.y, selectGrid.Pos.z),0.5f)
+            DOMove(new Vector3(selectGrid.WorldPos.x, _cm.position.y, selectGrid.WorldPos.z),0.5f)
             .SetEase(Ease.Linear);
 
         switch(gameState)
@@ -40,7 +40,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
                 {
                     gameState = GameState.SelectObject;
                     if (selectGrid.State == GridState.Player)
-                        ObjectMove.MoveRange((int)selectGrid.GridPos.x,(int)selectGrid.GridPos.y,3);
+                        ObjectMove.MoveRange((int)selectGrid.GridPos.x,(int)selectGrid.GridPos.y,selectGrid.OnObject.Step);
                 }
                 break;
             }
@@ -50,6 +50,14 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
                 {
                     gameState = GameState.None;
                     ObjectMove.OnMoveClear();
+                }
+                if(selectGrid.State == GridState.OnMove)
+                {
+                    int bx = (int)beforeSelect.GridPos.x;
+                    int by = (int)beforeSelect.GridPos.y;
+                    int sx = (int)selectGrid.GridPos.x;
+                    int sy = (int)selectGrid.GridPos.y;
+                    ObjectMove.AStarSearch(bx,by,sx,sy);
                 }
                 break;
             }

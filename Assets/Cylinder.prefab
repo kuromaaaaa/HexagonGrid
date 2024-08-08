@@ -120,7 +120,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb9c60bf62eb51f4e9a517c58819a9f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  num: 0
   _gridColor:
   - {r: 1, g: 1, b: 1, a: -3.893565e-25}
   - {r: 0, g: 0.7890246, b: 1, a: 0.0000002143832}
