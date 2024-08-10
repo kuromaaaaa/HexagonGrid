@@ -31,23 +31,31 @@ public class MouseClick : SingletonMonoBehaviour<MouseClick>
         }
         if (Input.mouseScrollDelta.y != 0)
         {
-            _camera.transform.position += new Vector3(0, Input.mouseScrollDelta.y, 0);
+            _camera.transform.position += CapAtCameraPosY(Input.mouseScrollDelta.y);
         }
 
         if (Input.GetMouseButton(1))
         {
             Vector3 mouseMove = new Vector3(Input.GetAxis("Mouse X"), 0, Input.GetAxis("Mouse Y")) * -1 * mouseSensi;
-            _camera.transform.position += CapAtCameraPos(mouseMove);
+            _camera.transform.position += CapAtCameraPosXZ(mouseMove);
         }
         CameraPosCheck();
     }
 
-    Vector3 CapAtCameraPos(Vector3 move)
+    Vector3 CapAtCameraPosXZ(Vector3 move)
     {
         Vector3 pos = _camera.transform.position;
         if ((pos.x < 0 && move.x < 0) || (pos.x > _camXmax && move.x > 0)) move.x = 0;
         if ((pos.z < 0 && move.z < 0) || (pos.z > _camZmax && move.z > 0)) move.z = 0;
         return move;
+    }
+
+    Vector3 CapAtCameraPosY(float delta)
+    {
+        Debug.Log(delta);
+        float pos = _camera.transform.position.y;
+        if((pos > 10 && delta < 0) || (pos < 3 && delta > 0)) delta = 0;
+        return new Vector3(0, delta * -1, 0);
     }
 
     void CameraPosCheck()

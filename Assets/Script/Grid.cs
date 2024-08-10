@@ -28,17 +28,18 @@ public class Grid : MonoBehaviour
             GetComponent<MeshRenderer>().material.color = _gridColor[(int)value];
         }
     }
-    ObjectSO onObject;
+    ObjectSO _onObject;
     public ObjectSO OnObject 
     {
-        get { return onObject; }
+        get { return _onObject; }
         set 
         { 
-            onObject = value;
+            _onObject = value;
             if (value == null)
                 State = GridState.None;
             else
             {
+            value.Pos = _gridPos;
                 switch (value.Type)
                 {
                     case (ObjectType.Player):

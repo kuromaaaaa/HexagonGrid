@@ -185,7 +185,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objects:
-  - {fileID: 11400000, guid: 584f4c41ab2878840be9d84903e31858, type: 2}
+  - StartPosition: {x: 8, y: 8}
+    ObjectData: {fileID: 11400000, guid: 584f4c41ab2878840be9d84903e31858, type: 2}
+  - StartPosition: {x: 6, y: 6}
+    ObjectData: {fileID: 11400000, guid: e529c194352e0ee478dfe5923df7d0d8, type: 2}
+  - StartPosition: {x: 6, y: 5}
+    ObjectData: {fileID: 11400000, guid: d6bbae934562a1b49a7684b3335b1f62, type: 2}
 --- !u!114 &385635623
 MonoBehaviour:
   m_ObjectHideFlags: 0

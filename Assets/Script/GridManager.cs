@@ -30,22 +30,39 @@ public class GridManager : SingletonMonoBehaviour<GridManager>
                 _grids[x, (int)y] = grid;
                 gridObject.name = $"grid({x}, {y})";
 
-                if(_gridText)
+                if (_gridText)
                 {
                     GameObject text = Instantiate(_gridText);
-                    text.transform.position = grid.WorldPos += new Vector3(0,0.1f,0);
+                    text.transform.position = grid.WorldPos += new Vector3(0, 0.1f, 0);
                     text.GetComponent<TextMesh>().text = $"{x},{y}";
+                    text.transform.parent = gridObject.transform;
                 }
             }
         }
 
-        foreach(var data in GameManager.Instance.Objects)
+        foreach (var data in GameManager.Instance.Objects)
         {
-            switch(data.Type)
+
+            _grids[(int)data.StartPosition.x, (int)data.StartPosition.y].OnObject = data.ObjectData;
+            data.ObjectData.Pos = data.StartPosition;
+            GameObject g = Instantiate(data.ObjectData.StartObject);
+            data.ObjectData.Object = g;
+            g.transform.position = _grids[(int)data.StartPosition.x, (int)data.StartPosition.y].WorldPos;
+            switch(data.ObjectData.Type)
             {
                 case (ObjectType.Player):
                 {
-                    _grids[(int)data.Pos.x, (int)data.Pos.y].OnObject = data;
+                    GameManager.Instance.Players.Add(data.ObjectData);
+                    break;
+                }
+                case (ObjectType.Enemy):
+                {
+                    GameManager.Instance.Enemys.Add(data.ObjectData);
+                    break;
+                }
+                case (ObjectType.Obstacle):
+                {
+                    GameManager.Instance.Obstacles.Add(data.ObjectData);
                     break;
                 }
             }

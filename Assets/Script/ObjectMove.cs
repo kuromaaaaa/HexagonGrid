@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -34,6 +35,8 @@ static public class ObjectMove
             if (!CheckY(yValue)) return false;//yがグリッド上にないならfalse
             if (grids[xValue, yValue].OnMove) return false;//すでに判定しているならfalse
             if (x == xValue && y == yValue) return false;//原点ならfalse
+            if (grids[xValue, yValue].State == GridState.Enemy) return false;
+            if (grids[xValue, yValue].State == GridState.Obstacle) return false;
             return true;
         }
     }
@@ -59,15 +62,25 @@ static public class ObjectMove
             g.OnMove = false;
         }
     }
-
-    static public void AStarSearch(int startX, int startY, int goalX, int goalY)
+    /// <summary>スタート座標とゴール座標を渡せばそこまでのルートを返す</summary>
+    /// <returns>スタートからゴールまでの座標</returns>
+    static public Stack<(int, int)> AStarSearch(int startX, int startY, int goalX, int goalY, ObjectSO obj)
     {
         AstarGrid[,] astarGrids = new AstarGrid[_xMax, _yMax];
         for (int y = 0; y < _yMax; y++)
             for (int x = 0; x < _xMax; x++)
                 astarGrids[x, y] = new AstarGrid(x, y);
+        foreach (ObjectSO blocker in GameManager.Instance.Enemys)
+        {
+            astarGrids[(int)blocker.Pos.x, (int)blocker.Pos.y].State = AstarGrid.AstarState.Block;
+        }
+        foreach (ObjectSO blocker in GameManager.Instance.Obstacles)
+        {
+            astarGrids[(int)blocker.Pos.x, (int)blocker.Pos.y].State = AstarGrid.AstarState.Block;
+        }
         astarGrids[startX, startY].State = AstarGrid.AstarState.Start;
         astarGrids[goalX, goalY].State = AstarGrid.AstarState.Goal;
+
         Grid[,] grids = GridManager.Instance.Grids;
         Vector2 goalPos = new Vector2(grids[goalX, goalY].WorldPos.x, grids[goalX, goalY].WorldPos.z);
 
@@ -85,14 +98,16 @@ static public class ObjectMove
                 int nextY = currentGrid.Pos.Item2 + moveDir.Item2;
                 if (CheckX(nextX) && CheckY(nextY))
                 {
-                AstarGrid nextGrid = astarGrids[nextX, nextY];
+                    AstarGrid nextGrid = astarGrids[nextX, nextY];
                     if (nextGrid.State == AstarGrid.AstarState.Goal)
                     {
                         nextGrid.BeforePos = currentGrid.Pos;
                         isGoal = true;
                     }
                     //まだGrid上に物があるかの判定をしていない
-                    if (nextGrid.State != AstarGrid.AstarState.Open && nextGrid.State != AstarGrid.AstarState.Start)
+                    if (nextGrid.State != AstarGrid.AstarState.Open
+                        && nextGrid.State != AstarGrid.AstarState.Start
+                        && nextGrid.State != AstarGrid.AstarState.Block)
                     {
                         Vector2 nextWorldPos = new Vector2(grids[nextX, nextY].WorldPos.x, grids[nextX, nextY].WorldPos.z);
                         nextGrid.State = AstarGrid.AstarState.Open;
@@ -113,7 +128,24 @@ static public class ObjectMove
             route.Push(current.Pos);
             current = astarGrids[current.BeforePos.Item1, current.BeforePos.Item2];
         }
-        Debug.Log(string.Join("⇒", route));
+        return route;
+    }
+
+    static public void ObjectPosMove(Stack<(int, int)> route, GameObject gm)
+    {
+        if (route.Count > 0)
+        {
+            (int, int) pos = route.Pop();
+            Vector3 nextPos = GridManager.Instance.Grids[pos.Item1, pos.Item2].WorldPos;
+            Vector3 Fo = (nextPos - gm.transform.position);
+            Fo.y = 0;
+            gm.transform.forward = Fo;
+            gm.transform.DOMove(nextPos, 0.1f).OnComplete(() => { ObjectPosMove(route, gm); });
+        }
+        else
+        {
+            GameManager.Instance.GameState = GameState.None;
+        }
     }
 }
 
@@ -134,7 +166,6 @@ public class AstarGrid
         Way,
         Block,
         Open,
-        Close,
         Start,
         Goal
     }

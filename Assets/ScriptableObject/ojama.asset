@@ -10,12 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3dd4a12e75ae21247a095c522f8fbb85, type: 3}
-  m_Name: Data
+  m_Name: ojama
   m_EditorClassIdentifier: 
-  Type: 0
+  Type: 2
   AttackType: 0
-  Pos: {x: 8, y: 8}
-  ObjectName: name1
-  Hp: 10
-  Attack: 10
-  Step: 5
+  ObjectName: 
+  Pos: {x: 6, y: 5}
+  Hp: 0
+  Attack: 0
+  Step: 0
+  IsMove: 1
+  IsAttack: 1
+  StartObject: {fileID: 2746340170531587510, guid: 84f8ed1e3d46ca34b9f60c9e2d247e4d, type: 3}
+  Object: {fileID: 0}
