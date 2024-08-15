@@ -7,11 +7,25 @@ static public class ObjectMove
     static int _xMax;
     static int _yMax;
 
+    static Grid[,] _grids = GridManager.Instance.Grids;
     static (int, int)[] _hexMoveEven = { (1, 0), (-1, 0), (0, +1), (0, -1), (-1, -1), (-1, +1) };
     static (int, int)[] _hexMoveOdd = { (1, 0), (-1, 0), (0, +1), (0, -1), (+1, +1), (+1, -1) };
+    static (int, int)[] HexMove(int y)
+    {
+        if (y % 2 == 0)
+            return _hexMoveEven;
+        else
+            return _hexMoveOdd;
+    }
+    static (int, int)[] HexMove(float y)
+    {
+        if (y % 2 == 0)
+            return _hexMoveEven;
+        else
+            return _hexMoveOdd;
+    }
     static public void MoveRange(int x, int y, int step)
     {
-        Grid[,] grids = GridManager.Instance.Grids;
         _xMax = GridManager.Instance.SizeX;
         _yMax = GridManager.Instance.SizeY;
 
@@ -20,9 +34,9 @@ static public class ObjectMove
         while (queue.Count > 0)
         {
             (int, int, int) deque = queue.Dequeue();
-            grids[deque.Item1, deque.Item2].OnMove = true;
+            _grids[deque.Item1, deque.Item2].MoveRange = true;
             if (deque.Item3 == step) continue;
-            foreach ((int, int) moveDir in deque.Item2 % 2 == 0 ? _hexMoveEven : _hexMoveOdd)
+            foreach ((int, int) moveDir in HexMove(deque.Item2))
             {
                 if (MoveCheck(deque.Item1 + moveDir.Item1, deque.Item2 + moveDir.Item2))
                     queue.Enqueue((deque.Item1 + moveDir.Item1, deque.Item2 + moveDir.Item2, deque.Item3 + 1));
@@ -33,10 +47,10 @@ static public class ObjectMove
         {
             if (!CheckX(xValue)) return false;//xがグリッド上にないならfalse
             if (!CheckY(yValue)) return false;//yがグリッド上にないならfalse
-            if (grids[xValue, yValue].OnMove) return false;//すでに判定しているならfalse
+            if (_grids[xValue, yValue].MoveRange) return false;//すでに判定しているならfalse
             if (x == xValue && y == yValue) return false;//原点ならfalse
-            if (grids[xValue, yValue].State == GridState.Enemy) return false;
-            if (grids[xValue, yValue].State == GridState.Obstacle) return false;
+            if (_grids[xValue, yValue].State == GridState.Enemy) return false;
+            if (_grids[xValue, yValue].State == GridState.Obstacle) return false;
             return true;
         }
     }
@@ -56,10 +70,25 @@ static public class ObjectMove
 
     static public void OnMoveClear()
     {
-        Grid[,] grids = GridManager.Instance.Grids;
-        foreach (Grid g in grids)
+        foreach (Grid g in _grids)
         {
-            g.OnMove = false;
+            g.MoveRange = false;
+        }
+    }
+
+    static public void OnAttackClear()
+    {
+        foreach (Grid g in _grids)
+        {
+            g.AttackRange = false;
+        }
+    }
+
+    static public void AttackRange(ObjectSO obj)
+    {
+        foreach ((int, int) moveDir in HexMove(obj.Pos.y))
+        {
+            _grids[(int)obj.Pos.x + moveDir.Item1, (int)obj.Pos.y + moveDir.Item2].AttackRange = true;
         }
     }
     /// <summary>スタート座標とゴール座標を渡せばそこまでのルートを返す</summary>
@@ -81,8 +110,7 @@ static public class ObjectMove
         astarGrids[startX, startY].State = AstarGrid.AstarState.Start;
         astarGrids[goalX, goalY].State = AstarGrid.AstarState.Goal;
 
-        Grid[,] grids = GridManager.Instance.Grids;
-        Vector2 goalPos = new Vector2(grids[goalX, goalY].WorldPos.x, grids[goalX, goalY].WorldPos.z);
+        Vector2 goalPos = new Vector2(_grids[goalX, goalY].WorldPos.x, _grids[goalX, goalY].WorldPos.z);
 
         List<AstarGrid> openGrid = new List<AstarGrid> { astarGrids[startX, startY] };
 
@@ -92,7 +120,7 @@ static public class ObjectMove
             AstarGrid currentGrid = openGrid[0];
             openGrid.RemoveAt(0);
 
-            foreach ((int, int) moveDir in currentGrid.Pos.Item2 % 2 == 0 ? _hexMoveEven : _hexMoveOdd)
+            foreach ((int, int) moveDir in HexMove(currentGrid.Pos.Item2))
             {
                 int nextX = currentGrid.Pos.Item1 + moveDir.Item1;
                 int nextY = currentGrid.Pos.Item2 + moveDir.Item2;
@@ -109,7 +137,7 @@ static public class ObjectMove
                         && nextGrid.State != AstarGrid.AstarState.Start
                         && nextGrid.State != AstarGrid.AstarState.Block)
                     {
-                        Vector2 nextWorldPos = new Vector2(grids[nextX, nextY].WorldPos.x, grids[nextX, nextY].WorldPos.z);
+                        Vector2 nextWorldPos = new Vector2(_grids[nextX, nextY].WorldPos.x, _grids[nextX, nextY].WorldPos.z);
                         nextGrid.State = AstarGrid.AstarState.Open;
                         nextGrid.BeforePos = currentGrid.Pos;
                         nextGrid.PreCost = Vector2.Distance(nextWorldPos, goalPos);
@@ -131,20 +159,21 @@ static public class ObjectMove
         return route;
     }
 
-    static public void ObjectPosMove(Stack<(int, int)> route, GameObject gm)
+    static public void ObjectPosMove(Stack<(int, int)> route, ObjectSO obj)
     {
         if (route.Count > 0)
         {
             (int, int) pos = route.Pop();
             Vector3 nextPos = GridManager.Instance.Grids[pos.Item1, pos.Item2].WorldPos;
-            Vector3 Fo = (nextPos - gm.transform.position);
+            Vector3 Fo = (nextPos - obj.Object.transform.position);
             Fo.y = 0;
-            gm.transform.forward = Fo;
-            gm.transform.DOMove(nextPos, 0.1f).OnComplete(() => { ObjectPosMove(route, gm); });
+            obj.Object.transform.forward = Fo;
+            obj.Object.transform.DOMove(nextPos, 0.1f).OnComplete(() => { ObjectPosMove(route, obj); });
         }
         else
         {
-            GameManager.Instance.GameState = GameState.None;
+            GameManager.Instance.SelectGrid = _grids[(int)obj.Pos.x, (int)obj.Pos.y];
+            GameManager.Instance.GameState = GameState.SelectObject;
         }
     }
 }

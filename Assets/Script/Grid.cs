@@ -25,7 +25,7 @@ public class Grid : MonoBehaviour
         {
             _state = value;
             //グリッドの色変える
-            GetComponent<MeshRenderer>().material.color = _gridColor[(int)value];
+            GetComponent<MeshRenderer>().material.color = GridManager.Instance.GridColor[(int)value];
         }
     }
     ObjectSO _onObject;
@@ -59,15 +59,13 @@ public class Grid : MonoBehaviour
         }
     }
 
-    [SerializeField] Color[] _gridColor;
-
-    bool _onMove = false;
-    public bool OnMove
+    bool _moveRange = false;
+    public bool MoveRange
     {
-        get { return _onMove; }
+        get { return _moveRange; }
         set 
-        { 
-            _onMove = value;
+        {
+            _moveRange = value;
             if (value == true)
             {
                 if (State == GridState.None)
@@ -80,6 +78,25 @@ public class Grid : MonoBehaviour
             }
         }
     }
+    bool _attackRange = false;
+    public bool AttackRange
+    {
+        get { return _attackRange; }
+        set
+        {
+            _attackRange = value;
+            if (value == true)
+            {
+                if (State == GridState.None)
+                    State = GridState.OnAttack;
+            }
+            else
+            {
+                if (State == GridState.OnAttack)
+                    State = GridState.None;
+            }
+        }
+    }
 }
 
 public enum GridState
@@ -87,6 +104,7 @@ public enum GridState
     None,
     Player,
     OnMove,
+    OnAttack,
     Enemy,
     Obstacle,
     Goal,

@@ -10,6 +10,9 @@ public class GridManager : SingletonMonoBehaviour<GridManager>
     [SerializeField] GameObject _gridText;
     Grid[,] _grids;
     public Grid[,] Grids => _grids;
+
+    [SerializeField] Color[] _gridColor;
+    public Color[] GridColor => _gridColor;
     // Start is called before the first frame update
     void Start()
     {
@@ -47,6 +50,10 @@ public class GridManager : SingletonMonoBehaviour<GridManager>
             data.ObjectData.Pos = data.StartPosition;
             GameObject g = Instantiate(data.ObjectData.StartObject);
             data.ObjectData.Object = g;
+            data.ObjectData.IsMove = true;
+            data.ObjectData.IsAttack = true;
+            data.ObjectData.IsAlive = true;
+            data.ObjectData.Hp = data.ObjectData.MaxHp;
             g.transform.position = _grids[(int)data.StartPosition.x, (int)data.StartPosition.y].WorldPos;
             switch(data.ObjectData.Type)
             {

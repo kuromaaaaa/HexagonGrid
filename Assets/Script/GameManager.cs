@@ -1,19 +1,26 @@
 using DG.Tweening;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class GameManager : SingletonMonoBehaviour<GameManager>
 {
-    GameState gameState;
-    public GameState GameState { set { gameState = value; } }
+    GameState _gameState;
+    public GameState GameState { set { _gameState = value; Debug.Log(value); } }
     Grid _selectGrid;
     public Grid SelectGrid
     {
         get { return _selectGrid; }
         set
         {
+            if (value.OnObject)
+            {
+                UIManager.Instance.SelectObject(value.OnObject);
+            }
+            else
+            {
+                UIManager.Instance.SelectCancel();
+            }
             SelectGridChange(_selectGrid, value);
             _selectGrid = value;
         }
@@ -37,42 +44,29 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
     void SelectGridChange(Grid beforeSelect, Grid selectGrid)
     {
-        Camera.main.gameObject.transform.
-            DOMove(new Vector3(selectGrid.WorldPos.x, _cm.position.y, selectGrid.WorldPos.z), 0.5f)
-            .SetEase(Ease.Linear);
-
-        switch (gameState)
+        //ÉJÉÅÉâà⁄ìÆ
+        if (IsSelectGridCameraMove(selectGrid))
+        {
+            Camera.main.gameObject.transform.
+                DOMove(new Vector3(selectGrid.WorldPos.x, _cm.position.y, selectGrid.WorldPos.z), 0.5f)
+                .SetEase(Ease.Linear);
+        }
+        switch (_gameState)
         {
             case (GameState.None):
             {
                 if (selectGrid.OnObject)
                 {
-                    gameState = GameState.SelectObject;
-                    if (selectGrid.State == GridState.Player)
-                        ObjectMove.MoveRange((int)selectGrid.GridPos.x, (int)selectGrid.GridPos.y, selectGrid.OnObject.Step);
+                    GameState = GameState.SelectObject;
                 }
                 break;
             }
             case (GameState.SelectObject):
             {
-                if (selectGrid.State == GridState.None)
+                if (selectGrid.State == GridState.None || (selectGrid.OnObject && selectGrid.OnObject.Type == ObjectType.Enemy))
                 {
-                    gameState = GameState.None;
+                    GameState = GameState.None;
                     ObjectMove.OnMoveClear();
-                }
-                if (selectGrid.State == GridState.OnMove)
-                {
-                    int bx = (int)beforeSelect.GridPos.x;
-                    int by = (int)beforeSelect.GridPos.y;
-                    int sx = (int)selectGrid.GridPos.x;
-                    int sy = (int)selectGrid.GridPos.y;
-                    Stack<(int, int)> route = ObjectMove.AStarSearch(bx, by, sx, sy,beforeSelect.OnObject);
-                    Debug.Log($"({beforeSelect.GridPos.x}, {beforeSelect.GridPos.y})ÅÀ" + string.Join("ÅÀ", route));
-                    ObjectMove.OnMoveClear();
-                    ObjectMove.ObjectPosMove(route, beforeSelect.OnObject.Object);
-                    selectGrid.OnObject = beforeSelect.OnObject;
-                    beforeSelect.OnObject = null;
-                    gameState = GameState.Move;
                 }
                 break;
             }
@@ -80,7 +74,71 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             {
                 break;
             }
+            case (GameState.MoveRangeSearch):
+            {
+                int bx = (int)beforeSelect.GridPos.x;
+                int by = (int)beforeSelect.GridPos.y;
+                int sx = (int)selectGrid.GridPos.x;
+                int sy = (int)selectGrid.GridPos.y;
+                Stack<(int, int)> route = ObjectMove.AStarSearch(bx, by, sx, sy, beforeSelect.OnObject);
+                Debug.Log($"({beforeSelect.GridPos.x}, {beforeSelect.GridPos.y})ÅÀ" + string.Join("ÅÀ", route));
+                ObjectMove.OnMoveClear();
+                ObjectMove.ObjectPosMove(route, beforeSelect.OnObject);
+                beforeSelect.OnObject.IsMove = false;
+                selectGrid.OnObject = beforeSelect.OnObject;
+                beforeSelect.OnObject = null;
+                GameState = GameState.Move;
+                break;
+            }
+            case (GameState.AttackRangeSearch):
+            {
+                if((selectGrid.OnObject && selectGrid.OnObject.Type == ObjectType.Enemy) && selectGrid.AttackRange)
+                {
+                    ObjectSO first = beforeSelect.OnObject;
+                    ObjectSO second = selectGrid.OnObject;
+                    Debug.Log($"ÉoÉgÉã {beforeSelect.OnObject.name} ÅÀ {selectGrid.OnObject.name}");
+                    second.AddHP(first.Attack * -1);
+                    if(second.IsAlive)
+                    {
+                        first.AddHP(second.Attack * -1);
+                    }
+                    first.IsAttack = false;
+                }
+                break;
+            }
         }
+        if (!selectGrid.OnObject)
+        {
+            GameState = GameState.None;
+            ObjectMove.OnMoveClear();
+            ObjectMove.OnAttackClear();
+        }
+    }
+
+    public void MoveButton()
+    {
+        if (SelectGrid.OnObject.IsMove)
+        {
+            GameState = GameState.MoveRangeSearch;
+            ObjectMove.MoveRange((int)SelectGrid.GridPos.x, (int)SelectGrid.GridPos.y, SelectGrid.OnObject.Step);
+        }
+    }
+    public void AttackButton()
+    {
+        if (SelectGrid.OnObject.IsAttack)
+        {
+            GameState = GameState.AttackRangeSearch;
+            ObjectMove.AttackRange(SelectGrid.OnObject);
+        }
+    }
+
+    bool IsSelectGridCameraMove(Grid selectGrid)
+    {
+        if (_gameState == GameState.AttackRangeSearch &&
+            (selectGrid.OnObject && selectGrid.OnObject.Type == ObjectType.Enemy)
+            && selectGrid.AttackRange)
+            return false;
+        return true;
     }
 }
 [Serializable]

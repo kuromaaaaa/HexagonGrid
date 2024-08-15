@@ -1,4 +1,6 @@
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class MouseClick : SingletonMonoBehaviour<MouseClick>
 {
@@ -10,22 +12,25 @@ public class MouseClick : SingletonMonoBehaviour<MouseClick>
     public float CamZmax { set { _camZmax = value; } }
 
     GameObject _camera;
-
+    EventSystem _es;
     void Start()
     {
         _camera = Camera.main.gameObject;
+        _es = EventSystem.current;
     }
 
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out _rayhit))
+            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out _rayhit) &&
+                    !_es.IsPointerOverGameObject())
             {
+                if(!_rayhit.collider.gameObject.TryGetComponent<Grid>(out Grid grid))
+                {
+                    Debug.LogError("エラー：たぶんコライダーがついてる");
+                }
                 Grid select = _rayhit.collider.gameObject.GetComponent<Grid>();
-                if (select.OnObject)
-                    Debug.Log($"{select.GridPos}\n{select.WorldPos}\n{select.OnObject.ObjectName}");
-                else Debug.Log($"{select.GridPos}\n{select.WorldPos}");
                 GameManager.Instance.SelectGrid = select;
             }
         }
@@ -52,7 +57,6 @@ public class MouseClick : SingletonMonoBehaviour<MouseClick>
 
     Vector3 CapAtCameraPosY(float delta)
     {
-        Debug.Log(delta);
         float pos = _camera.transform.position.y;
         if((pos > 10 && delta < 0) || (pos < 3 && delta > 0)) delta = 0;
         return new Vector3(0, delta * -1, 0);
