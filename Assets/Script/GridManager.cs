@@ -1,7 +1,10 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GridManager : SingletonMonoBehaviour<GridManager>
 {
+    [SerializeField] List<StageDataSO> stageDatas;
+    public StageDataSO currentStage;
     [SerializeField] int _sizeX;
     public int SizeX => _sizeX;
     [SerializeField] int _sizeY;

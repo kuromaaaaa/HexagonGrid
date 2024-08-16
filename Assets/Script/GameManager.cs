@@ -92,18 +92,25 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             }
             case (GameState.AttackRangeSearch):
             {
-                if((selectGrid.OnObject && selectGrid.OnObject.Type == ObjectType.Enemy) && selectGrid.AttackRange)
+                if ((selectGrid.OnObject && selectGrid.OnObject.Type == ObjectType.Enemy) && selectGrid.AttackRange)
                 {
                     ObjectSO first = beforeSelect.OnObject;
                     ObjectSO second = selectGrid.OnObject;
                     Debug.Log($"ÉoÉgÉã {beforeSelect.OnObject.name} ÅÀ {selectGrid.OnObject.name}");
                     second.AddHP(first.Attack * -1);
-                    if(second.IsAlive)
+                    if (second.IsAlive)
                     {
                         first.AddHP(second.Attack * -1);
                     }
+                    else
+                    {
+                        UIManager.Instance.SelectCancel();
+                    }
                     first.IsAttack = false;
                 }
+                GameState = GameState.None;
+                ObjectMove.OnMoveClear();
+                ObjectMove.OnAttackClear();
                 break;
             }
         }
@@ -139,6 +146,15 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             && selectGrid.AttackRange)
             return false;
         return true;
+    }
+
+    public void PlayerTurnStart()
+    {
+        foreach (ObjectSO player in _players)
+        {
+            player.IsMove = true;
+            player.IsAttack = true;
+        }
     }
 }
 [Serializable]

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Data", menuName = "ScriptableObjects/ObjectSO")]
@@ -16,21 +14,43 @@ public class ObjectSO : ScriptableObject
     public bool IsMove = true;
     public bool IsAttack = true;
     bool _isAlive = true;
-    public bool IsAlive 
+    public bool IsAlive
     {
         get => _isAlive;
-        set { Debug.Log("€‚ñ‚¾‚Æ‚«‚Ìˆ—‘‚­");
+        set
+        {
+            if (value == false)
+            {
+                Debug.Log("€‚ñ‚¾‚Æ‚«‚Ìˆ—‘‚­");
+                GridManager.Instance.Grids[(int)Pos.x, (int)Pos.y].OnObject = null;
+                Destroy(this.Object);
+                this.Object = null;
+                switch (Type)
+                {
+                    case (ObjectType.Player):
+                    {
+                        GameManager.Instance.Players.Remove(this);
+                        break;
+                    }
+                    case (ObjectType.Enemy):
+                    {
+                        GameManager.Instance.Enemys.Remove(this);
+                        break;
+                    }
+                }
+
+            }
             _isAlive = value;
-        } 
+        }
     }
 
     public GameObject StartObject;
     public GameObject Object;
 
-    public void AddHP(int n )
+    public void AddHP(int n)
     {
         Hp += n;
-        if(Hp <= 0)
+        if (Hp <= 0)
         {
             IsAlive = false;
         }

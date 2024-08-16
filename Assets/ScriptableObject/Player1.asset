@@ -18,7 +18,7 @@ MonoBehaviour:
   Pos: {x: 8, y: 8}
   MaxHp: 10
   Hp: 10
-  Attack: 10
+  Attack: 5
   Step: 5
   IsMove: 1
   IsAttack: 1
