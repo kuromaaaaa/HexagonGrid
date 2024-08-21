@@ -15,12 +15,12 @@ MonoBehaviour:
   Type: 0
   AttackType: 0
   ObjectName: Player2
-  Pos: {x: 5, y: 6}
+  Pos: {x: 5, y: 5}
   MaxHp: 10
   Hp: 10
   Attack: 10
   Step: 3
   IsMove: 0
   IsAttack: 0
-  StartObject: {fileID: 8782179798108290971, guid: 671c4cc6bd5ff924fa2ac3ac542511c2, type: 3}
+  StartObject: {fileID: 2480798459442297029, guid: 0d88beac75de5c44fb3874d65ef34277, type: 3}
   Object: {fileID: 0}

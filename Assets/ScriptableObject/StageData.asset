@@ -12,8 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18d904398d657b54aae0b9a4444e372a, type: 3}
   m_Name: StageData
   m_EditorClassIdentifier: 
-  SizeX: 0
-  SizeY: 0
-  PlayerStart: []
+  Size:
+    x: 10
+    y: 10
+  PlayerStart:
+  - x: 5
+    y: 5
+  EnemyStart: []
   ObstaclePos: []
-  Goal: {x: 0, y: 0}
+  Goal:
+    x: 0
+    y: 0

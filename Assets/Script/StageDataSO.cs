@@ -7,9 +7,22 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "StageData", menuName = "ScriptableObjects/StageData"),Serializable]
 public class StageDataSO : ScriptableObject
 {
-    public int SizeX;
-    public int SizeY;
-    public List<Vector2> PlayerStart;
-    public List<Vector2> ObstaclePos;
-    public Vector2 Goal;
+    public Pos Size;
+    public List<Pos> PlayerStart;
+    public List<Pos> EnemyStart;
+    public List<Pos> ObstaclePos;
+    public Pos Goal;
+
+    [Serializable]
+    public class Pos
+    {
+        public int x;
+        public int y;
+
+        public Pos(int x, int y) 
+        { 
+            this.x = x;
+            this.y = y;
+        }
+    }
 }

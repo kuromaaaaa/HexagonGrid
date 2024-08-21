@@ -15,12 +15,12 @@ MonoBehaviour:
   Type: 0
   AttackType: 0
   ObjectName: name1
-  Pos: {x: 8, y: 8}
+  Pos: {x: 6, y: 6}
   MaxHp: 10
   Hp: 10
   Attack: 5
   Step: 5
-  IsMove: 1
+  IsMove: 0
   IsAttack: 1
-  StartObject: {fileID: 8782179798108290971, guid: 671c4cc6bd5ff924fa2ac3ac542511c2, type: 3}
+  StartObject: {fileID: 2480798459442297029, guid: 0d88beac75de5c44fb3874d65ef34277, type: 3}
   Object: {fileID: 0}

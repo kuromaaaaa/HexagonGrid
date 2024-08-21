@@ -4,7 +4,7 @@ using UnityEngine;
 public class GridManager : SingletonMonoBehaviour<GridManager>
 {
     [SerializeField] List<StageDataSO> stageDatas;
-    public StageDataSO currentStage;
+    StageDataSO _currentStage;
     [SerializeField] int _sizeX;
     public int SizeX => _sizeX;
     [SerializeField] int _sizeY;
@@ -19,6 +19,7 @@ public class GridManager : SingletonMonoBehaviour<GridManager>
     // Start is called before the first frame update
     void Start()
     {
+        _currentStage = stageDatas[Random.Range(0, stageDatas.Count)];
         _grids = new Grid[_sizeX, _sizeY];
 
         for (float y = 0, z = 0; y < _sizeY; y++, z += Mathf.Sin(60 * Mathf.Deg2Rad))

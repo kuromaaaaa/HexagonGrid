@@ -8,8 +8,8 @@ static public class ObjectMove
     static int _yMax;
 
     static Grid[,] _grids = GridManager.Instance.Grids;
-    static (int, int)[] _hexMoveEven = { (1, 0), (-1, 0), (0, +1), (0, -1), (-1, -1), (-1, +1) };
-    static (int, int)[] _hexMoveOdd = { (1, 0), (-1, 0), (0, +1), (0, -1), (+1, +1), (+1, -1) };
+    static (int, int)[] _hexMoveEven = { (0, 1), (1, 0), (0, -1), (-1, -1), (-1, 0), (-1, 1) };
+    static (int, int)[] _hexMoveOdd = { (1, 1), (1, 0), (1, -1), (0, -1), (-1, 0), (0, 1) };
     static (int, int)[] HexMove(int y)
     {
         if (y % 2 == 0)
