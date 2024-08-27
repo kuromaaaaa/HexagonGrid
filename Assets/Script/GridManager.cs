@@ -5,10 +5,7 @@ public class GridManager : SingletonMonoBehaviour<GridManager>
 {
     [SerializeField] List<StageDataSO> stageDatas;
     StageDataSO _currentStage;
-    [SerializeField] int _sizeX;
-    public int SizeX => _sizeX;
-    [SerializeField] int _sizeY;
-    public int SizeY => _sizeY;
+    public StageDataSO Stage => _currentStage;
     [SerializeField] GameObject _gridGameObject;
     [SerializeField] GameObject _gridText;
     Grid[,] _grids;
@@ -20,11 +17,11 @@ public class GridManager : SingletonMonoBehaviour<GridManager>
     void Start()
     {
         _currentStage = stageDatas[Random.Range(0, stageDatas.Count)];
-        _grids = new Grid[_sizeX, _sizeY];
+        _grids = new Grid[_currentStage.Size.x, _currentStage.Size.y];
 
-        for (float y = 0, z = 0; y < _sizeY; y++, z += Mathf.Sin(60 * Mathf.Deg2Rad))
+        for (float y = 0, z = 0; y < _currentStage.Size.y; y++, z += Mathf.Sin(60 * Mathf.Deg2Rad))
         {
-            for (int x = 0; x < _sizeX; x++)
+            for (int x = 0; x < _currentStage.Size.x; x++)
             {
                 GameObject gridObject = Instantiate(_gridGameObject);
                 //À•W”z’u
@@ -78,8 +75,16 @@ public class GridManager : SingletonMonoBehaviour<GridManager>
                 }
             }
         }
+        ObjectSO obstacle = GameManager.Instance.Obstacle;
+        foreach (StageDataSO.Pos obj in Stage.ObstaclePos)
+        {
+            _grids[obj.x, obj.y].OnObject = obstacle;
+            Instantiate(obstacle.StartObject).transform.position = _grids[obj.x, obj.y].WorldPos;
+        }
 
-        Vector3 maxGrid = _grids[_sizeX - 1, _sizeY - 1].WorldPos;
+        _grids[Stage.Goal.x, Stage.Goal.y].State = GridState.Goal;
+
+        Vector3 maxGrid = _grids[_currentStage.Size.x - 1, _currentStage.Size.y - 1].WorldPos;
         MouseClick.Instance.CamXmax = maxGrid.x;
         MouseClick.Instance.CamZmax = maxGrid.z;
     }

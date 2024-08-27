@@ -43,26 +43,31 @@ public class StageEditGrid : SingletonMonoBehaviour<StageEditGrid>
             }
 
             SelectGridReset();
+            MeshRenderer mr = value.GetComponent<MeshRenderer>();
             switch(_type)
             {
                 case EditGritType.PlayerStart:
                 {
                     _editStage.PlayerStart.Add(_select.pos);
+                    mr.material.color = Color.blue;
                     break;
                 }
                 case EditGritType.EnemyStart:
                 {
                     _editStage.EnemyStart.Add(_select.pos);
+                    mr.material.color = Color.red;
                     break;
                 }
                 case EditGritType.Obstacle:
                 {
                     _editStage.ObstaclePos.Add(_select.pos);
+                    mr.material.color = Color.gray;
                     break; 
                 }
                 case EditGritType.Goal: 
                 {
                     _editStage.Goal = _select.pos;
+                    mr.material.color = Color.yellow;
                     break;
                 }
             }
@@ -111,6 +116,9 @@ public class StageEditGrid : SingletonMonoBehaviour<StageEditGrid>
         {
             _grids[xy.x, xy.y].obj.GetComponent<MeshRenderer>().material.color = Color.gray;
         }
+        //ÉSÅ[ÉãÇÃà íu
+        StageDataSO.Pos goal = _editStage.Goal;
+        _grids[goal.x, goal.y].obj.GetComponent<MeshRenderer>().material.color = Color.yellow;
     }
 
     private void SelectGridReset()

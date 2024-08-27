@@ -7,9 +7,13 @@ static public class ObjectMove
     static int _xMax;
     static int _yMax;
 
+
     static Grid[,] _grids = GridManager.Instance.Grids;
     static (int, int)[] _hexMoveEven = { (0, 1), (1, 0), (0, -1), (-1, -1), (-1, 0), (-1, 1) };
     static (int, int)[] _hexMoveOdd = { (1, 1), (1, 0), (1, -1), (0, -1), (-1, 0), (0, 1) };
+
+    static public float objMoveSpeed = 0.1f;
+
     static (int, int)[] HexMove(int y)
     {
         if (y % 2 == 0)
@@ -24,18 +28,18 @@ static public class ObjectMove
         else
             return _hexMoveOdd;
     }
-    static public void MoveRange(int x, int y, int step)
+    static public void MoveRange(ObjectSO obj)
     {
-        _xMax = GridManager.Instance.SizeX;
-        _yMax = GridManager.Instance.SizeY;
+        _xMax = GridManager.Instance.Stage.Size.x;
+        _yMax = GridManager.Instance.Stage.Size.y;
 
         Queue<(int, int, int)> queue = new Queue<(int, int, int)>();
-        queue.Enqueue((x, y, 0));
+        queue.Enqueue(((int)obj.Pos.x, (int)obj.Pos.y, 0));
         while (queue.Count > 0)
         {
             (int, int, int) deque = queue.Dequeue();
             _grids[deque.Item1, deque.Item2].MoveRange = true;
-            if (deque.Item3 == step) continue;
+            if (deque.Item3 == obj.Step) continue;
             foreach ((int, int) moveDir in HexMove(deque.Item2))
             {
                 if (MoveCheck(deque.Item1 + moveDir.Item1, deque.Item2 + moveDir.Item2))
@@ -43,13 +47,49 @@ static public class ObjectMove
             }
         }
 
+
         bool MoveCheck(int xValue, int yValue)
         {
             if (!CheckX(xValue)) return false;//xがグリッド上にないならfalse
             if (!CheckY(yValue)) return false;//yがグリッド上にないならfalse
             if (_grids[xValue, yValue].MoveRange) return false;//すでに判定しているならfalse
-            if (x == xValue && y == yValue) return false;//原点ならfalse
-            if (_grids[xValue, yValue].State == GridState.Enemy) return false;
+            if ((int)obj.Pos.x == xValue && (int)obj.Pos.y == yValue) return false;//原点ならfalse
+            if (obj.Type == ObjectType.Player && _grids[xValue, yValue].State == GridState.Enemy) return false;
+            if (obj.Type == ObjectType.Enemy && _grids[xValue, yValue].State == GridState.Player) return false;
+            if (_grids[xValue, yValue].State == GridState.Obstacle) return false;
+            return true;
+        }
+    }
+    static public void MoveRange(ObjectSO obj, out List<Grid> IsMoves)
+    {
+        IsMoves = new List<Grid>();
+        _xMax = GridManager.Instance.Stage.Size.x;
+        _yMax = GridManager.Instance.Stage.Size.y;
+
+        Queue<(int, int, int)> queue = new Queue<(int, int, int)>();
+        queue.Enqueue(((int)obj.Pos.x, (int)obj.Pos.y, 0));
+        while (queue.Count > 0)
+        {
+            (int, int, int) deque = queue.Dequeue();
+            _grids[deque.Item1, deque.Item2].MoveRange = true;
+            IsMoves.Add(_grids[deque.Item1, deque.Item2]);
+            if (deque.Item3 == obj.Step) continue;
+            foreach ((int, int) moveDir in HexMove(deque.Item2))
+            {
+                if (MoveCheck(deque.Item1 + moveDir.Item1, deque.Item2 + moveDir.Item2))
+                    queue.Enqueue((deque.Item1 + moveDir.Item1, deque.Item2 + moveDir.Item2, deque.Item3 + 1));
+            }
+        }
+
+
+        bool MoveCheck(int xValue, int yValue)
+        {
+            if (!CheckX(xValue)) return false;//xがグリッド上にないならfalse
+            if (!CheckY(yValue)) return false;//yがグリッド上にないならfalse
+            if (_grids[xValue, yValue].MoveRange) return false;//すでに判定しているならfalse
+            if ((int)obj.Pos.x == xValue && (int)obj.Pos.y == yValue) return false;//原点ならfalse
+            if (obj.Type == ObjectType.Player && _grids[xValue, yValue].State == GridState.Enemy) return false;
+            if (obj.Type == ObjectType.Enemy && _grids[xValue, yValue].State == GridState.Player) return false;
             if (_grids[xValue, yValue].State == GridState.Obstacle) return false;
             return true;
         }
@@ -91,17 +131,30 @@ static public class ObjectMove
             _grids[(int)obj.Pos.x + moveDir.Item1, (int)obj.Pos.y + moveDir.Item2].AttackRange = true;
         }
     }
-    /// <summary>スタート座標とゴール座標を渡せばそこまでのルートを返す</summary>
+    /// <summary>ゴール座標と動かすObjectSOを渡せばそこまでのルートを返す</summary>
     /// <returns>スタートからゴールまでの座標</returns>
-    static public Stack<(int, int)> AStarSearch(int startX, int startY, int goalX, int goalY, ObjectSO obj)
+
+    static public Stack<(int, int)> AStarSearch(int goalX, int goalY, ObjectSO obj)
     {
+        int startX = (int)obj.Pos.x;
+        int startY = (int)obj.Pos.y;
         AstarGrid[,] astarGrids = new AstarGrid[_xMax, _yMax];
         for (int y = 0; y < _yMax; y++)
             for (int x = 0; x < _xMax; x++)
                 astarGrids[x, y] = new AstarGrid(x, y);
-        foreach (ObjectSO blocker in GameManager.Instance.Enemys)
+        if (obj.Type == ObjectType.Player)
         {
-            astarGrids[(int)blocker.Pos.x, (int)blocker.Pos.y].State = AstarGrid.AstarState.Block;
+            foreach (ObjectSO blocker in GameManager.Instance.Enemys)
+            {
+                astarGrids[(int)blocker.Pos.x, (int)blocker.Pos.y].State = AstarGrid.AstarState.Block;
+            }
+        }
+        else
+        {
+            foreach (ObjectSO blocker in GameManager.Instance.Players)
+            {
+                astarGrids[(int)blocker.Pos.x, (int)blocker.Pos.y].State = AstarGrid.AstarState.Block;
+            }
         }
         foreach (ObjectSO blocker in GameManager.Instance.Obstacles)
         {
@@ -168,12 +221,13 @@ static public class ObjectMove
             Vector3 Fo = (nextPos - obj.Object.transform.position);
             Fo.y = 0;
             obj.Object.transform.forward = Fo;
-            obj.Object.transform.DOMove(nextPos, 0.1f).OnComplete(() => { ObjectPosMove(route, obj); });
+            obj.Object.transform.DOMove(nextPos, objMoveSpeed).OnComplete(() => { ObjectPosMove(route, obj); });
         }
         else
         {
             GameManager.Instance.SelectGrid = _grids[(int)obj.Pos.x, (int)obj.Pos.y];
-            GameManager.Instance.GameState = GameState.SelectObject;
+            if (obj.Type == ObjectType.Player)
+                GameManager.Instance.GameState = GameState.SelectObject;
         }
     }
 }

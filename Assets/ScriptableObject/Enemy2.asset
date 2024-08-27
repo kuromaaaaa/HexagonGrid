@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3dd4a12e75ae21247a095c522f8fbb85, type: 3}
-  m_Name: Player1
+  m_Name: Enemy2
   m_EditorClassIdentifier: 
-  Type: 0
+  Type: 1
   AttackType: 0
-  ObjectName: Player1
-  Pos: {x: 5, y: 4}
-  MaxHp: 10
-  Hp: 10
-  Attack: 5
-  Step: 5
+  ObjectName: E2
+  Pos: {x: 1, y: 3}
+  MaxHp: 1
+  Hp: 1
+  Attack: 1
+  Step: 6
   IsMove: 1
   IsAttack: 1
-  StartObject: {fileID: 2480798459442297029, guid: 0d88beac75de5c44fb3874d65ef34277, type: 3}
+  StartObject: {fileID: 2480798459442297029, guid: 4f6422a929d448344b8e6c1d54a20769, type: 3}
   Object: {fileID: 0}

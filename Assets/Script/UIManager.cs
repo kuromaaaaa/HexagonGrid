@@ -13,8 +13,9 @@ public class UIManager : SingletonMonoBehaviour<UIManager>
             texts[i] = selectPanel.transform.GetChild(i).GetComponent<Text>();
         GameObject m = selectPanel.transform.GetChild(4).gameObject;
         GameObject a = selectPanel.transform.GetChild(5).gameObject;
+        GameObject t = selectPanel.transform.GetChild(6).gameObject;
 
-        panel = new PanelClass(texts, m, a);
+        panel = new PanelClass(texts, m, a, t);
     }
 
     public void SelectObject(ObjectSO obj)
@@ -24,8 +25,15 @@ public class UIManager : SingletonMonoBehaviour<UIManager>
         panel.HP.text = $"HP : {obj.Hp.ToString()}";
         panel.Attack.text = $"ATK : {obj.Attack.ToString()}";
         panel.Step.text = $"SPD : {obj.Step.ToString()}";
-        panel.MoveButton.GetComponent<Image>().color = obj.IsMove ? Color.white : new Color(0.5f,0.5f,0.5f);
-        panel.AttackButton.GetComponent<Image>().color = obj.IsAttack ? Color.white: new Color(0.5f, 0.5f, 0.5f);
+        panel.MoveButton.GetComponent<Image>().color = obj.IsMove ? Color.white : new Color(0.5f, 0.5f, 0.5f);
+        panel.AttackButton.GetComponent<Image>().color = obj.IsAttack ? Color.white : new Color(0.5f, 0.5f, 0.5f);
+        panel.TurnSkipButton.GetComponent<Image>().color = (!obj.IsMove && !obj.IsAttack) ? new Color(0.5f, 0.5f, 0.5f) : Color.white ;
+
+        panel.MoveButton.transform.GetChild(0).gameObject.SetActive(obj.Type == ObjectType.Player);
+        panel.MoveButton.GetComponent<Image>().enabled = obj.Type == ObjectType.Player;
+        panel.AttackButton.transform.GetChild(0).gameObject.SetActive(obj.Type == ObjectType.Player);
+        panel.AttackButton.GetComponent<Image>().enabled = obj.Type == ObjectType.Player;
+
     }
 
     public void SelectCancel()
@@ -42,6 +50,8 @@ class PanelClass
     public Text Step;
     public GameObject MoveButton;
     public GameObject AttackButton;
+    public GameObject TurnSkipButton;
+
     public PanelClass(Text n, Text h, Text a, Text s)
     {
         Name = n;
@@ -49,7 +59,7 @@ class PanelClass
         Attack = a;
         Step = s;
     }
-    public PanelClass(Text[] texts, GameObject m, GameObject a)
+    public PanelClass(Text[] texts, GameObject m, GameObject a, GameObject t)
     {
         Name = texts[0];
         HP = texts[1];
@@ -57,5 +67,6 @@ class PanelClass
         Step = texts[3];
         MoveButton = m;
         AttackButton = a;
+        TurnSkipButton = t;
     }
 }
