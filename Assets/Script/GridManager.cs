@@ -18,6 +18,7 @@ public class GridManager : SingletonMonoBehaviour<GridManager>
     {
         _currentStage = stageDatas[Random.Range(0, stageDatas.Count)];
         _grids = new Grid[_currentStage.Size.x, _currentStage.Size.y];
+        GameObject gridParent = GameObject.Find("Grids");
 
         for (float y = 0, z = 0; y < _currentStage.Size.y; y++, z += Mathf.Sin(60 * Mathf.Deg2Rad))
         {
@@ -28,6 +29,7 @@ public class GridManager : SingletonMonoBehaviour<GridManager>
                 if (y % 2 == 0) gridObject.transform.position = new Vector3(x, 0, z);
                 else gridObject.transform.position = new Vector3(0.5f + x, 0, z);
 
+                gridObject.transform.parent = gridParent.transform;
                 Grid grid = gridObject.GetComponent<Grid>();
                 grid.GridPos = new Vector2(x, y);
                 grid.WorldPos = gridObject.transform.position;
@@ -44,42 +46,45 @@ public class GridManager : SingletonMonoBehaviour<GridManager>
             }
         }
 
-        foreach (var data in GameManager.Instance.Objects)
-        {
+        GameObject objParent = GameObject.Find("Obj");
 
-            _grids[(int)data.StartPosition.x, (int)data.StartPosition.y].OnObject = data.ObjectData;
-            data.ObjectData.Pos = data.StartPosition;
-            GameObject g = Instantiate(data.ObjectData.StartObject);
-            data.ObjectData.Object = g;
-            data.ObjectData.IsMove = true;
-            data.ObjectData.IsAttack = true;
-            data.ObjectData.IsAlive = true;
-            data.ObjectData.Hp = data.ObjectData.MaxHp;
-            g.transform.position = _grids[(int)data.StartPosition.x, (int)data.StartPosition.y].WorldPos;
-            switch(data.ObjectData.Type)
-            {
-                case (ObjectType.Player):
-                {
-                    GameManager.Instance.Players.Add(data.ObjectData);
-                    break;
-                }
-                case (ObjectType.Enemy):
-                {
-                    GameManager.Instance.Enemys.Add(data.ObjectData);
-                    break;
-                }
-                case (ObjectType.Obstacle):
-                {
-                    GameManager.Instance.Obstacles.Add(data.ObjectData);
-                    break;
-                }
-            }
+        for(int i = 0; i < GameManager.Instance.Players.Count ;i++)
+        {
+            ObjectSO obj = GameManager.Instance.Players[i];
+            StageDataSO.Pos pos = _currentStage.PlayerStart[i];
+            _grids[pos.x, pos.y].OnObject = obj;
+            GameObject g = Instantiate(obj.StartObject);
+            g.transform.position = _grids[pos.x, pos.y].WorldPos;
+            obj.Object = g;
+            obj.IsMove = true;
+            obj.IsAttack = true;
+            obj.IsAlive = true;
+            obj.Hp = obj.MaxHp;
+            g.transform.parent = objParent.transform;
         }
+
+        for (int i = 0; i < GameManager.Instance.Enemys.Count; i++)
+        {
+            ObjectSO obj = GameManager.Instance.Enemys[i];
+            StageDataSO.Pos pos = _currentStage.EnemyStart[i];
+            _grids[pos.x, pos.y].OnObject = obj;
+            GameObject g = Instantiate(obj.StartObject);
+            g.transform.position = _grids[pos.x, pos.y].WorldPos;
+            obj.Object = g;
+            obj.IsMove = true;
+            obj.IsAttack = true;
+            obj.IsAlive = true;
+            obj.Hp = obj.MaxHp;
+            g.transform.parent = objParent.transform;
+        }
+
         ObjectSO obstacle = GameManager.Instance.Obstacle;
         foreach (StageDataSO.Pos obj in Stage.ObstaclePos)
         {
             _grids[obj.x, obj.y].OnObject = obstacle;
-            Instantiate(obstacle.StartObject).transform.position = _grids[obj.x, obj.y].WorldPos;
+            GameObject g = Instantiate(obstacle.StartObject);
+            g.transform.position = _grids[obj.x, obj.y].WorldPos;
+            g.transform.parent = objParent.transform;
         }
 
         _grids[Stage.Goal.x, Stage.Goal.y].State = GridState.Goal;

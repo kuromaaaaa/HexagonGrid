@@ -8,10 +8,10 @@ using UnityEngine.SceneManagement;
 public class GameManager : SingletonMonoBehaviour<GameManager>
 {
     GameState _gameState;
-    public GameState GameState 
+    public GameState GameState
     {
         get => _gameState;
-        set { _gameState = value; Debug.Log(value); } 
+        set { _gameState = value; Debug.Log(value); }
     }
     Grid _selectGrid;
     public Grid SelectGrid
@@ -38,17 +38,13 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
     Transform _cm;
 
-    [SerializeField] List<StartObject> objects;
-    public List<StartObject> Objects { get { return objects; } }
     [SerializeField] ObjectSO _obstacle;
     public ObjectSO Obstacle { get => _obstacle; }
 
-    List<ObjectSO> _players = new List<ObjectSO>();
+    [SerializeField] List<ObjectSO> _players = new List<ObjectSO>();
     public List<ObjectSO> Players { get => _players; set { _players = value; } }
-    List<ObjectSO> _enemys = new List<ObjectSO>();
+    [SerializeField] List<ObjectSO> _enemys = new List<ObjectSO>();
     public List<ObjectSO> Enemys { get => _enemys; set { _enemys = value; } }
-    List<ObjectSO> _obstacles = new List<ObjectSO>();
-    public List<ObjectSO> Obstacles { get => _obstacles; set { _obstacles = value; } }
     private void Start()
     {
         _cm = Camera.main.transform;
@@ -97,7 +93,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
                     Debug.Log($"({beforeSelect.GridPos.x}, {beforeSelect.GridPos.y})ÅÀ" + string.Join("ÅÀ", route));
                     ObjectMove.OnMoveClear();
                     ObjectMove.ObjectPosMove(route, beforeSelect.OnObject);
-                    if(selectGrid.State == GridState.Goal)
+                    if (selectGrid.State == GridState.Goal)
                     {
                         Debug.Log("ÉSÅ[Éã");
                         SceneManager.LoadScene("SampleScene");
@@ -200,14 +196,14 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     void TurnEndCheck()
     {
         bool isTurnEnd = true;
-        foreach(ObjectSO obj in _players)
+        foreach (ObjectSO obj in _players)
         {
-            if(obj.IsAttack)
+            if (obj.IsAttack)
             {
                 isTurnEnd = false;
             }
         }
-        if(isTurnEnd)
+        if (isTurnEnd)
             EnemyTurnStart();
     }
 
@@ -289,10 +285,4 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         PlayerTurnStart();
         GameState = GameState.None;
     }
-}
-[Serializable]
-public class StartObject
-{
-    public Vector2 StartPosition;
-    public ObjectSO ObjectData;
 }

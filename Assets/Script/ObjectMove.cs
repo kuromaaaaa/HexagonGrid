@@ -156,9 +156,9 @@ static public class ObjectMove
                 astarGrids[(int)blocker.Pos.x, (int)blocker.Pos.y].State = AstarGrid.AstarState.Block;
             }
         }
-        foreach (ObjectSO blocker in GameManager.Instance.Obstacles)
+        foreach (var blocker in GridManager.Instance.Stage.ObstaclePos)
         {
-            astarGrids[(int)blocker.Pos.x, (int)blocker.Pos.y].State = AstarGrid.AstarState.Block;
+            astarGrids[blocker.x, blocker.y].State = AstarGrid.AstarState.Block;
         }
         astarGrids[startX, startY].State = AstarGrid.AstarState.Start;
         astarGrids[goalX, goalY].State = AstarGrid.AstarState.Goal;

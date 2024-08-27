@@ -1,5 +1,3 @@
-using JetBrains.Annotations;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -44,6 +42,7 @@ public class StageEditGrid : SingletonMonoBehaviour<StageEditGrid>
 
             SelectGridReset();
             MeshRenderer mr = value.GetComponent<MeshRenderer>();
+            mr.material.color = Color.white;
             switch(_type)
             {
                 case EditGritType.PlayerStart:
@@ -66,6 +65,7 @@ public class StageEditGrid : SingletonMonoBehaviour<StageEditGrid>
                 }
                 case EditGritType.Goal: 
                 {
+                    _grids[_editStage.Goal.x, _editStage.Goal.y].obj.GetComponent<MeshRenderer>().material.color = Color.white;
                     _editStage.Goal = _select.pos;
                     mr.material.color = Color.yellow;
                     break;
