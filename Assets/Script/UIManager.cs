@@ -6,6 +6,11 @@ public class UIManager : SingletonMonoBehaviour<UIManager>
     PanelClass panel;
 
     [SerializeField] GameObject selectPanel;
+
+    [SerializeField] GameObject _fadeIn;
+    public GameObject FadeIn { get => _fadeIn; }
+    [SerializeField] GameObject _fadeOut;
+    public GameObject FadeOut { get => _fadeOut; }
     private void Start()
     {
         Text[] texts = new Text[4];

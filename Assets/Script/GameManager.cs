@@ -96,7 +96,9 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
                     if (selectGrid.State == GridState.Goal)
                     {
                         Debug.Log("ÉSÅ[Éã");
-                        SceneManager.LoadScene("SampleScene");
+                        GameObject fadeOut = UIManager.Instance.FadeOut;
+                        fadeOut.SetActive(true);
+                        fadeOut.GetComponent<FadeOut>().GameClear += (() => SceneManager.LoadScene("SampleScene"));
                         break;
                     }
                     UIManager.Instance.SelectObject(SelectGrid.OnObject);

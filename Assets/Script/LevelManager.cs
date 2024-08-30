@@ -11,4 +11,8 @@ public class LevelManager : SingletonMonoBehaviour<LevelManager>
         DDOL = true;
         base.Awake();
     }
+    private void Start()
+    {
+        
+    }
 }

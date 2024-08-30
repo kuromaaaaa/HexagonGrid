@@ -92,6 +92,8 @@ public class GridManager : SingletonMonoBehaviour<GridManager>
         Vector3 maxGrid = _grids[_currentStage.Size.x - 1, _currentStage.Size.y - 1].WorldPos;
         MouseClick.Instance.CamXmax = maxGrid.x;
         MouseClick.Instance.CamZmax = maxGrid.z;
+
+        ObjectMove.Grid = _grids;
     }
 
     // Update is called once per frame
